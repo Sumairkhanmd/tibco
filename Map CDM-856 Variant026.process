@@ -1,0 +1,2077 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pd:ProcessDefinition xmlns:pfx="http://www.tibco.com/CommonLE2/namespace/Public/Common/RequestHeader.xsd" xmlns:pfx2="http://www.tibco.com/CommonLE2/namespace/Public/Logging/ClientLogRequest.xsd" xmlns:ns="http://www.tibco.com/pe/DeployedVarsType" xmlns:pfx3="http://www.tibco.com/ns/Foresight/2010/20" xmlns:pfx4="ecolab.com/CDM:1" xmlns:pfx5="http://www.tibco.com/schemas/O2C_OB_ShpNtce/O2C_OB_ShpNtce/sharedResources/schemas/Schema.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ns2="http://www.tibco.com/ns/ax/bc/EDI/2002/10/aeschema" xmlns:tib="http://www.tibco.com/bw/xslt/custom-functions" xmlns:ns1="http://www.tibco.com/pe/EngineTypes" xmlns:ns3="http://www.tibco.com/CommonLE2/namespace/Public/Common/ClientExceptionRequest.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:pd="http://xmlns.tibco.com/bw/process/2003" xmlns:BW="java://com.tibco.pe.core.JavaCustomXPATHFunctions">
+    <xsd:import namespace="ecolab.com/CDM:1"/>
+    <xsd:import namespace="ecolab.com/CDM:1" schemaLocation="/EcolabSchema/CDM/O2C_ShipmentNotice/O2C_ShipmentNotice.xsd"/>
+    <xsd:import namespace="http://www.tibco.com/schemas/O2C_OB_ShpNtce/O2C_OB_ShpNtce/sharedResources/schemas/Schema.xsd" schemaLocation="/O2C_OB_ShpNtce/sharedResources/schemas/HL_Mapping_Schema.xsd"/>
+    <xsd:import namespace="http://www.tibco.com/ns/Foresight/2010/20" schemaLocation="/BCSchemas/X12/00406/004060/856/T-856.xsd"/>
+    <pd:name>O2C_OB_ShpNtce/businessProcesses/OutboundTransactions/Map CDM-856 Variant026.process</pd:name>
+    <pd:description>Used for HD Supply</pd:description>
+    <pd:startName>Start</pd:startName>
+    <pd:startType>
+        <xsd:element name="root">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element ref="pfx4:O2C_ShipmentNotice"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:startType>
+    <pd:startX>66</pd:startX>
+    <pd:startY>58</pd:startY>
+    <pd:returnBindings>
+        <Transaction>
+            <TPName>
+                <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+            </TPName>
+            <TransactionID>
+                <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+            </TransactionID>
+        </Transaction>
+    </pd:returnBindings>
+    <pd:endName>End</pd:endName>
+    <pd:endType>
+        <xsd:element name="Transaction">
+            <xsd:complexType>
+                <xsd:sequence>
+                    <xsd:element name="TPName" type="xsd:string" minOccurs="0"/>
+                    <xsd:element name="TransactionID" type="xsd:string" minOccurs="0"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
+    </pd:endType>
+    <pd:endX>1245</pd:endX>
+    <pd:endY>62</pd:endY>
+    <pd:errorSchemas/>
+    <pd:processVariables/>
+    <pd:targetNamespace>http://xmlns.example.com/1315589837395</pd:targetNamespace>
+    <pd:activity name="LogSentBC">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>722</pd:x>
+        <pd:y>58</pd:y>
+        <config>
+            <processName>/SharedResources/logging/logAppender.process</processName>
+        </config>
+        <pd:inputBindings>
+            <LogAppenderRequest>
+                <Header>
+                    <ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </ApplicationID>
+                    <ComponentName>
+                        <xsl:value-of select="&quot;SentToBC&quot;"/>
+                    </ComponentName>
+                </Header>
+                <Category>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/LogCategories/INFO"/>
+                </Category>
+                <Message>
+                    <xsl:value-of select="&quot;Message Sent To BC&quot;"/>
+                </Message>
+            </LogAppenderRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Error in Send To BC">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>596</pd:x>
+        <pd:y>345</pd:y>
+        <config>
+            <processName>/SharedResources/CLEClient/publish_CLE_Exception.process</processName>
+        </config>
+        <pd:inputBindings>
+            <ns3:ExceptionRequest>
+                <pfx:Header>
+                    <pfx:ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </pfx:ApplicationID>
+                    <pfx:ComponentName>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID"/>
+                    </pfx:ComponentName>
+                    <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName">
+                        <pfx:TransactionDomain>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                        </pfx:TransactionDomain>
+                    </xsl:if>
+                    <pfx:TransactionType>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+                    </pfx:TransactionType>
+                    <pfx:TransactionID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system"/>
+                    </pfx:TransactionID>
+                </pfx:Header>
+                <ExceptionCode>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/ExceptionCodes/DataError"/>
+                </ExceptionCode>
+                <Message>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/Msg"/>
+                </Message>
+                <TransactionData-XmlString>
+                    <xsl:value-of select="tib:render-xml($_error/ns1:ErrorReport/Data,1,1)"/>
+                </TransactionData-XmlString>
+                <DumpAnalysis>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/StackTrace"/>
+                </DumpAnalysis>
+                <CorrelationID>
+                    <xsl:value-of select="concat($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system/@type,&quot;/&quot;,$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId,&quot;/&quot;,tib:format-dateTime('yyyyMMdd/HHmmss', $Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:dates/pfx4:transaction))"/>
+                </CorrelationID>
+            </ns3:ExceptionRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SendtoBC">
+        <pd:type>com.tibco.plugin.ax.bc.B2BSendRequestActivity</pd:type>
+        <pd:resourceType>ae.activities.SendRequest</pd:resourceType>
+        <pd:x>635</pd:x>
+        <pd:y>54</pd:y>
+        <config>
+            <sharedB2BConfig>/SharedResources/connections/bc/BCServerConfig.bcsc</sharedB2BConfig>
+            <parsePayload>true</parsePayload>
+            <operationName>00406/004060/856</operationName>
+            <generateTranID>false</generateTranID>
+            <responseWaitTime>86400</responseWaitTime>
+            <asyncRequest>true</asyncRequest>
+            <protocol>X12</protocol>
+            <discovery_jdbcDbType/>
+        </config>
+        <pd:inputBindings>
+            <ns2:SendRequestInput>
+                <ns2:BCInitiatorRequest>
+                    <ns2:transactionID>
+                        <xsl:value-of select="$Map-BC-Data/root/BC_TransactionID"/>
+                    </ns2:transactionID>
+                    <ns2:tpName>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                    </ns2:tpName>
+                    <ns2:perMessage>
+                        <ns2:interchange>
+                            <ns2:sender>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[1]">
+                                    <ns2:qualifier>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[1]"/>
+                                    </ns2:qualifier>
+                                </xsl:if>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[2]">
+                                    <ns2:ID>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[2]"/>
+                                    </ns2:ID>
+                                </xsl:if>
+                            </ns2:sender>
+                            <ns2:receiver>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[1]">
+                                    <ns2:qualifier>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[1]"/>
+                                    </ns2:qualifier>
+                                </xsl:if>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[2]">
+                                    <ns2:ID>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[2]"/>
+                                    </ns2:ID>
+                                </xsl:if>
+                            </ns2:receiver>
+                        </ns2:interchange>
+                        <ns2:group>
+                            <ns2:senderApp>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[3]">
+                                    <ns2:ID>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application, '_')[3]"/>
+                                    </ns2:ID>
+                                </xsl:if>
+                            </ns2:senderApp>
+                            <ns2:receiverApp>
+                                <xsl:if test="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[3]">
+                                    <ns2:ID>
+                                        <xsl:value-of select="tib:tokenize($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application, '_')[3]"/>
+                                    </ns2:ID>
+                                </xsl:if>
+                            </ns2:receiverApp>
+                        </ns2:group>
+                    </ns2:perMessage>
+                </ns2:BCInitiatorRequest>
+                <ns2:body>
+                    <xsl:copy-of select="$Map-BC-Data/root/pfx3:T-856"/>
+                </ns2:body>
+            </ns2:SendRequestInput>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="LogMapBC">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>534</pd:x>
+        <pd:y>54</pd:y>
+        <config>
+            <processName>/SharedResources/logging/logAppender.process</processName>
+        </config>
+        <pd:inputBindings>
+            <LogAppenderRequest>
+                <Header>
+                    <ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </ApplicationID>
+                    <ComponentName>
+                        <xsl:value-of select="BW:getCurrentActivityName($_processContext/ns1:ProcessContext/ProcessId)"/>
+                    </ComponentName>
+                </Header>
+                <Category>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/LogCategories/INFO"/>
+                </Category>
+                <Message>
+                    <xsl:value-of select="&quot;Message Mapped for BC&quot;"/>
+                </Message>
+            </LogAppenderRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Error in BC Mapping">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>385</pd:x>
+        <pd:y>409</pd:y>
+        <config>
+            <processName>/SharedResources/CLEClient/publish_CLE_Exception.process</processName>
+        </config>
+        <pd:inputBindings>
+            <ns3:ExceptionRequest>
+                <pfx:Header>
+                    <pfx:ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </pfx:ApplicationID>
+                    <pfx:ComponentName>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID"/>
+                    </pfx:ComponentName>
+                    <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName">
+                        <pfx:TransactionDomain>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                        </pfx:TransactionDomain>
+                    </xsl:if>
+                    <pfx:TransactionType>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+                    </pfx:TransactionType>
+                    <pfx:TransactionID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system"/>
+                    </pfx:TransactionID>
+                </pfx:Header>
+                <ExceptionCode>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/ExceptionCodes/DataError"/>
+                </ExceptionCode>
+                <Message>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/Msg"/>
+                </Message>
+                <TransactionData-XmlString>
+                    <xsl:value-of select="tib:render-xml($_error/ns1:ErrorReport/Data,1,1)"/>
+                </TransactionData-XmlString>
+                <DumpAnalysis>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/StackTrace"/>
+                </DumpAnalysis>
+                <CorrelationID>
+                    <xsl:value-of select="concat($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system/@type,&quot;/&quot;,$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId,&quot;/&quot;,tib:format-dateTime('yyyyMMdd/HHmmss', $Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:dates/pfx4:transaction))"/>
+                </CorrelationID>
+            </ns3:ExceptionRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Set Confirm true">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>1116</pd:x>
+        <pd:y>60</pd:y>
+        <config>
+            <variableConfig>/O2C_OB_ShpNtce/sharedResources/JobVariables/ConfirmFlag.jobsharedvariable</variableConfig>
+        </config>
+        <pd:inputBindings>
+            <Confirm_Flag>
+                <Confirm_true_false>
+                    <xsl:value-of select="&quot;true&quot;"/>
+                </Confirm_true_false>
+                <Exception_flag>
+                    <xsl:value-of select="&quot;false&quot;"/>
+                </Exception_flag>
+            </Confirm_Flag>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="SetExceptionFlag">
+        <pd:type>com.tibco.pe.core.SetSharedVariableActivity</pd:type>
+        <pd:resourceType>ae.activities.setSharedVariable</pd:resourceType>
+        <pd:x>1243</pd:x>
+        <pd:y>414</pd:y>
+        <config>
+            <variableConfig>/O2C_OB_ShpNtce/sharedResources/JobVariables/ConfirmFlag.jobsharedvariable</variableConfig>
+            <showResult>true</showResult>
+        </config>
+        <pd:inputBindings>
+            <Confirm_Flag>
+                <Confirm_true_false>
+                    <xsl:value-of select="&quot;true&quot;"/>
+                </Confirm_true_false>
+                <Exception_flag>
+                    <xsl:value-of select="&quot;true&quot;"/>
+                </Exception_flag>
+            </Confirm_Flag>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="logMarketplaceTransaction">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>858</pd:x>
+        <pd:y>61</pd:y>
+        <config>
+            <processName>/SharedResources/marketplaceTracking/logMarketplaceTransaction.process</processName>
+        </config>
+        <pd:inputBindings>
+            <logMarketplaceTransaction>
+                <direction>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/lookup/direction_ECOLAB_TO_PARTNER"/>
+                </direction>
+                <timestamp>
+                    <xsl:value-of select="current-dateTime()"/>
+                </timestamp>
+                <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName">
+                    <receivingTradingPartner>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                    </receivingTradingPartner>
+                </xsl:if>
+                <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application">
+                    <gsAppSender_ID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application"/>
+                    </gsAppSender_ID>
+                </xsl:if>
+                <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application">
+                    <gsAppReceiver_ID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application"/>
+                    </gsAppReceiver_ID>
+                </xsl:if>
+                <operation>
+                    <xsl:value-of select="&quot;00401/004010/856&quot;"/>
+                </operation>
+                <transactionDomain>
+                    <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                </transactionDomain>
+                <transactionType>
+                    <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+                </transactionType>
+                <transactionID>
+                    <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system"/>
+                </transactionID>
+                <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID">
+                    <referenceID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID"/>
+                    </referenceID>
+                </xsl:if>
+                <BCCorrelationID>
+                    <xsl:value-of select="$Map-BC-Data/root/BC_TransactionID"/>
+                </BCCorrelationID>
+                <System_Type>
+                    <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system/@type"/>
+                </System_Type>
+                <Transaction_Date>
+                    <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:dates/pfx4:transaction"/>
+                </Transaction_Date>
+            </logMarketplaceTransaction>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Error in logMarketPlaceTransaction">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>859</pd:x>
+        <pd:y>246</pd:y>
+        <config>
+            <processName>/SharedResources/CLEClient/publish_CLE_Exception.process</processName>
+        </config>
+        <pd:inputBindings>
+            <ns3:ExceptionRequest>
+                <pfx:Header>
+                    <pfx:ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </pfx:ApplicationID>
+                    <pfx:ComponentName>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID"/>
+                    </pfx:ComponentName>
+                    <xsl:if test="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName">
+                        <pfx:TransactionDomain>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                        </pfx:TransactionDomain>
+                    </xsl:if>
+                    <pfx:TransactionType>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+                    </pfx:TransactionType>
+                    <pfx:TransactionID>
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system"/>
+                    </pfx:TransactionID>
+                </pfx:Header>
+                <ExceptionCode>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/ExceptionCodes/DataError"/>
+                </ExceptionCode>
+                <Message>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/Msg"/>
+                </Message>
+                <TransactionData-XmlString>
+                    <xsl:value-of select="tib:render-xml($_error/ns1:ErrorReport/Data,1,1)"/>
+                </TransactionData-XmlString>
+                <DumpAnalysis>
+                    <xsl:value-of select="$_error/ns1:ErrorReport/StackTrace"/>
+                </DumpAnalysis>
+                <CorrelationID>
+                    <xsl:value-of select="concat($Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:system/@type,&quot;/&quot;,$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId,&quot;/&quot;,tib:format-dateTime('yyyyMMdd/HHmmss', $Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:dates/pfx4:transaction))"/>
+                </CorrelationID>
+            </ns3:ExceptionRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="LogMarketPlaceTransaction-Success">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>1001</pd:x>
+        <pd:y>60</pd:y>
+        <config>
+            <processName>/SharedResources/logging/logAppender.process</processName>
+        </config>
+        <pd:inputBindings>
+            <LogAppenderRequest>
+                <Header>
+                    <ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </ApplicationID>
+                    <ComponentName>
+                        <xsl:value-of select="BW:getCurrentActivityName($_processContext/ns1:ProcessContext/ProcessId)"/>
+                    </ComponentName>
+                </Header>
+                <Category>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/LogCategories/INFO"/>
+                </Category>
+                <Message>
+                    <xsl:value-of select="&quot;Successfully Logged BC Message in MarketPlace Transaction DB&quot;"/>
+                </Message>
+            </LogAppenderRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="LogMarketPlaceTransaction-Error">
+        <pd:type>com.tibco.pe.core.CallProcessActivity</pd:type>
+        <pd:resourceType>ae.process.subprocess</pd:resourceType>
+        <pd:x>1017</pd:x>
+        <pd:y>174</pd:y>
+        <config>
+            <processName>/SharedResources/logging/logAppender.process</processName>
+        </config>
+        <pd:inputBindings>
+            <LogAppenderRequest>
+                <Header>
+                    <ApplicationID>
+                        <xsl:value-of select="$_globalVariables/ns:GlobalVariables/O2C_OB_ShpNtce/logging/cleHeader/applicationID"/>
+                    </ApplicationID>
+                    <ComponentName>
+                        <xsl:value-of select="BW:getCurrentActivityName($_processContext/ns1:ProcessContext/ProcessId)"/>
+                    </ComponentName>
+                </Header>
+                <Category>
+                    <xsl:value-of select="$_globalVariables/ns:GlobalVariables/CLE/Common/LogCategories/ERROR"/>
+                </Category>
+                <Message>
+                    <xsl:value-of select="&quot;Error occured while Logging BC Message in MarketPlace Transaction DB &quot;"/>
+                </Message>
+            </LogAppenderRequest>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Map BC Data">
+        <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+        <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+        <pd:x>415</pd:x>
+        <pd:y>53</pd:y>
+        <config>
+            <element>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="pfx3:T-856"/>
+                            <xsd:element name="BC_TransactionID" type="xsd:string" minOccurs="0"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </element>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <pfx3:T-856>
+                    <xsl:attribute name="ObjType">
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:tpName"/>
+                    </xsl:attribute>
+                    <xsl:attribute name="ObjID">
+                        <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:classification/pfx4:transactionId"/>
+                    </xsl:attribute>
+                    <pfx3:S-ST_1>
+                        <pfx3:E-143_1_01>
+                            <xsl:value-of select="&quot;856&quot;"/>
+                        </pfx3:E-143_1_01>
+                        <pfx3:E-329_1_02>
+                            <xsl:value-of select="&quot;-999&quot;"/>
+                        </pfx3:E-329_1_02>
+                    </pfx3:S-ST_1>
+                    <pfx3:S-BSN_2>
+                        <pfx3:E-353_2_01>
+                            <xsl:value-of select="'00'"/>
+                        </pfx3:E-353_2_01>
+                        <pfx3:E-396_2_02>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID"/>
+                        </pfx3:E-396_2_02>
+                        <pfx3:E-373_2_03>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentCreateDate"/>
+                        </pfx3:E-373_2_03>
+                        <pfx3:E-337_2_04>
+                            <xsl:value-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentCreateTime"/>
+                        </pfx3:E-337_2_04>
+                    </pfx3:S-BSN_2>
+                    <xsl:for-each select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment">
+                        <pfx3:L-HL_4>
+                            <pfx3:S-HL_4>
+                                <pfx3:E-628_4_01>
+                                    <xsl:value-of select="string(number(current()/pfx4:HierarchicalID))"/>
+                                </pfx3:E-628_4_01>
+                                <pfx3:E-735_4_03>
+                                    <xsl:value-of select="&quot;S&quot;"/>
+                                </pfx3:E-735_4_03>
+                            </pfx3:S-HL_4>
+                            <xsl:if test="exists(current()/pfx4:Quantity) and (current()/pfx4:Quantity!=&quot;&quot;)">
+                                <pfx3:S-TD1_14>
+                                    <pfx3:E-103_14_01>
+                                        <xsl:value-of select="&quot;PCS&quot;"/>
+                                    </pfx3:E-103_14_01>
+                                    <xsl:if test="current()/pfx4:Quantity">
+                                        <pfx3:E-80_14_02>
+                                            <xsl:value-of select="current()/pfx4:Quantity"/>
+                                        </pfx3:E-80_14_02>
+                                    </xsl:if>
+                                </pfx3:S-TD1_14>
+                            </xsl:if>
+                            <pfx3:S-TD5_15>
+                                <xsl:if test="exists (current()/pfx4:TransportationDetails/pfx4:CarrierSCAC) and (current()/pfx4:TransportationDetails/pfx4:CarrierSCAC)!=&quot;&quot;">
+                                    <pfx3:E-66_15_02>
+                                        <xsl:value-of select="'2'"/>
+                                    </pfx3:E-66_15_02>
+                                </xsl:if>
+                                <xsl:if test="current()/pfx4:TransportationDetails/pfx4:CarrierSCAC!=&quot;&quot;">
+                                    <xsl:if test="current()/pfx4:TransportationDetails/pfx4:CarrierSCAC">
+                                        <pfx3:E-67_15_03>
+                                            <xsl:value-of select="current()/pfx4:TransportationDetails/pfx4:CarrierSCAC"/>
+                                        </pfx3:E-67_15_03>
+                                    </xsl:if>
+                                </xsl:if>
+                                <xsl:if test="tib:trim(current()/pfx4:TransportationDetails/pfx4:Carrier)!=''">
+                                    <xsl:if test="current()/pfx4:TransportationDetails/pfx4:Carrier">
+                                        <pfx3:E-387_15_05>
+                                            <xsl:value-of select="current()/pfx4:TransportationDetails/pfx4:Carrier"/>
+                                        </pfx3:E-387_15_05>
+                                    </xsl:if>
+                                </xsl:if>
+                            </pfx3:S-TD5_15>
+                            <pfx3:S-REF_20>
+                                <pfx3:E-128_20_01>
+                                    <xsl:value-of select="&quot;VR&quot;"/>
+                                </pfx3:E-128_20_01>
+                                <xsl:if test="current()/pfx4:ShipmentReferenceNumbers[ pfx4:ReferenceNumberType=&quot;VR&quot;]/pfx4:ReferenceNumberValue">
+                                    <pfx3:E-127_20_02>
+                                        <xsl:value-of select="current()/pfx4:ShipmentReferenceNumbers[ pfx4:ReferenceNumberType=&quot;VR&quot;]/pfx4:ReferenceNumberValue"/>
+                                    </pfx3:E-127_20_02>
+                                </xsl:if>
+                            </pfx3:S-REF_20>
+                            <pfx3:S-REF_20>
+                                <pfx3:E-128_20_01>
+                                    <xsl:value-of select="&quot;BM&quot;"/>
+                                </pfx3:E-128_20_01>
+                                <xsl:if test="current()/pfx4:BOLNumber !=&quot;&quot;">
+                                    <xsl:if test="current()/pfx4:BOLNumber">
+                                        <pfx3:E-127_20_02>
+                                            <xsl:value-of select="current()/pfx4:BOLNumber"/>
+                                        </pfx3:E-127_20_02>
+                                    </xsl:if>
+                                </xsl:if>
+                            </pfx3:S-REF_20>
+                            <pfx3:S-DTM_36>
+                                <pfx3:E-374_36_01>
+                                    <xsl:value-of select="&quot;011&quot;"/>
+                                </pfx3:E-374_36_01>
+                                <xsl:if test="tib:format-date('yyyyMMdd',$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:ShipmentDates[pfx4:DateTimeType='011']/pfx4:Date)!=&quot;&quot;">
+                                    <pfx3:E-373_36_02>
+                                        <xsl:value-of select="tib:format-date('yyyyMMdd',$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:ShipmentDates[pfx4:DateTimeType='011']/pfx4:Date)"/>
+                                    </pfx3:E-373_36_02>
+                                </xsl:if>
+                            </pfx3:S-DTM_36>
+                            <pfx3:S-DTM_36>
+                                <pfx3:E-374_36_01>
+                                    <xsl:value-of select="&quot;067&quot;"/>
+                                </pfx3:E-374_36_01>
+                                <xsl:if test="tib:format-date('yyyyMMdd',$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:ShipmentDates[pfx4:DateTimeType='035']/pfx4:Date) !=&quot;&quot;">
+                                    <pfx3:E-373_36_02>
+                                        <xsl:value-of select="tib:format-date('yyyyMMdd',$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:ShipmentDates[pfx4:DateTimeType='035']/pfx4:Date)"/>
+                                    </pfx3:E-373_36_02>
+                                </xsl:if>
+                            </pfx3:S-DTM_36>
+                            <xsl:for-each select="current()/pfx4:ShipmentParties">
+                                <xsl:if test="current()/@type=&quot;ST&quot;">
+                                    <pfx3:L-N1_39>
+                                        <pfx3:S-N1_39>
+                                            <pfx3:E-98_39_01>
+                                                <xsl:value-of select="&quot;ST&quot;"/>
+                                            </pfx3:E-98_39_01>
+                                            <xsl:if test="current()[@type='ST']/pfx4:name">
+                                                <pfx3:E-93_39_02>
+                                                    <xsl:value-of select="current()[@type='ST']/pfx4:name"/>
+                                                </pfx3:E-93_39_02>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='ST']/pfx4:id[@type='92'] !=&quot;&quot;">
+                                                <pfx3:E-66_39_03>
+                                                    <xsl:value-of select="'6'"/>
+                                                </pfx3:E-66_39_03>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='ST']/pfx4:id[@type='92'] !=&quot;&quot;">
+                                                <xsl:if test="current()[@type='ST']/pfx4:id[@type='92']">
+                                                    <pfx3:E-67_39_04>
+                                                        <xsl:value-of select="current()[@type='ST']/pfx4:id[@type='92']"/>
+                                                    </pfx3:E-67_39_04>
+                                                </xsl:if>
+                                            </xsl:if>
+                                        </pfx3:S-N1_39>
+                                        <pfx3:S-N3_41>
+                                            <pfx3:E-166_41_01>
+                                                <xsl:value-of select="current()[@type='ST']/pfx4:address/pfx4:addressLine[1]"/>
+                                            </pfx3:E-166_41_01>
+                                        </pfx3:S-N3_41>
+                                        <pfx3:S-N4_42>
+                                            <xsl:if test="current()[@type='ST']/pfx4:address/pfx4:city">
+                                                <pfx3:E-19_42_01>
+                                                    <xsl:value-of select="current()[@type='ST']/pfx4:address/pfx4:city"/>
+                                                </pfx3:E-19_42_01>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='ST']/pfx4:address/pfx4:region">
+                                                <pfx3:E-156_42_02>
+                                                    <xsl:value-of select="current()[@type='ST']/pfx4:address/pfx4:region"/>
+                                                </pfx3:E-156_42_02>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='ST']/pfx4:address/pfx4:postalcode">
+                                                <pfx3:E-116_42_03>
+                                                    <xsl:value-of select="current()[@type='ST']/pfx4:address/pfx4:postalcode"/>
+                                                </pfx3:E-116_42_03>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='ST']/pfx4:address/pfx4:country">
+                                                <pfx3:E-26_42_04>
+                                                    <xsl:value-of select="current()[@type='ST']/pfx4:address/pfx4:country"/>
+                                                </pfx3:E-26_42_04>
+                                            </xsl:if>
+                                        </pfx3:S-N4_42>
+                                    </pfx3:L-N1_39>
+                                </xsl:if>
+                            </xsl:for-each>
+                            <xsl:for-each select="current()/pfx4:ShipmentParties">
+                                <xsl:if test="current()/@type=&quot;SF&quot;">
+                                    <pfx3:L-N1_39>
+                                        <pfx3:S-N1_39>
+                                            <pfx3:E-98_39_01>
+                                                <xsl:value-of select="&quot;SF&quot;"/>
+                                            </pfx3:E-98_39_01>
+                                            <xsl:if test="current()[@type='SF']/pfx4:name">
+                                                <pfx3:E-93_39_02>
+                                                    <xsl:value-of select="current()[@type='SF']/pfx4:name"/>
+                                                </pfx3:E-93_39_02>
+                                            </xsl:if>
+                                        </pfx3:S-N1_39>
+                                        <pfx3:S-N3_41>
+                                            <pfx3:E-166_41_01>
+                                                <xsl:value-of select="current()[@type='SF']/pfx4:address/pfx4:addressLine[1]"/>
+                                            </pfx3:E-166_41_01>
+                                        </pfx3:S-N3_41>
+                                        <pfx3:S-N4_42>
+                                            <xsl:if test="current()[@type='SF']/pfx4:address/pfx4:city">
+                                                <pfx3:E-19_42_01>
+                                                    <xsl:value-of select="current()[@type='SF']/pfx4:address/pfx4:city"/>
+                                                </pfx3:E-19_42_01>
+                                            </xsl:if>
+                                            <xsl:if test="current()[@type='SF']/pfx4:address/pfx4:region">
+                                                <pfx3:E-156_42_02>
+                                                    <xsl:value-of select="current()[@type='SF']/pfx4:address/pfx4:region"/>
+                                                </pfx3:E-156_42_02>
+                                            </xsl:if>
+                                            <pfx3:E-116_42_03>
+                                                <xsl:value-of select="if (contains(current()[@type='SF']/pfx4:address/pfx4:postalcode, '-')) then (translate(current()[@type='SF']/pfx4:address/pfx4:postalcode, '-', &quot;&quot;))&#xA;else current()[@type='SF']/pfx4:address/pfx4:postalcode"/>
+                                            </pfx3:E-116_42_03>
+                                            <xsl:if test="current()[@type='SF']/pfx4:address/pfx4:country">
+                                                <pfx3:E-26_42_04>
+                                                    <xsl:value-of select="current()[@type='SF']/pfx4:address/pfx4:country"/>
+                                                </pfx3:E-26_42_04>
+                                            </xsl:if>
+                                        </pfx3:S-N4_42>
+                                    </pfx3:L-N1_39>
+                                </xsl:if>
+                            </xsl:for-each>
+                        </pfx3:L-HL_4>
+                    </xsl:for-each>
+                    <xsl:for-each select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order">
+                        <pfx3:L-HL_4>
+                            <pfx3:S-HL_4>
+                                <pfx3:E-628_4_01>
+                                    <xsl:value-of select="string(number(current()/pfx4:HierarchicalID))"/>
+                                </pfx3:E-628_4_01>
+                                <xsl:if test="current()/pfx4:HierarchicalParentID!=''">
+                                    <pfx3:E-734_4_02>
+                                        <xsl:value-of select="string(number(current()/pfx4:HierarchicalParentID))"/>
+                                    </pfx3:E-734_4_02>
+                                </xsl:if>
+                                <pfx3:E-735_4_03>
+                                    <xsl:value-of select="'O'"/>
+                                </pfx3:E-735_4_03>
+                            </pfx3:S-HL_4>
+                            <pfx3:S-PRF_8>
+                                <pfx3:E-324_8_01>
+                                    <xsl:value-of select="current()/pfx4:PurchaseOrderNumber"/>
+                                </pfx3:E-324_8_01>
+                            </pfx3:S-PRF_8>
+                        </pfx3:L-HL_4>
+                        <xsl:for-each select="current()/pfx4:Pallet[1]">
+                            <pfx3:L-HL_4>
+                                <pfx3:S-HL_4>
+                                    <pfx3:E-628_4_01>
+                                        <xsl:value-of select="pfx4:HierarchicalID"/>
+                                    </pfx3:E-628_4_01>
+                                    <xsl:if test="pfx4:HierarchicalParentID!=''">
+                                        <xsl:if test="pfx4:HierarchicalParentID">
+                                            <pfx3:E-734_4_02>
+                                                <xsl:value-of select="pfx4:HierarchicalParentID"/>
+                                            </pfx3:E-734_4_02>
+                                        </xsl:if>
+                                    </xsl:if>
+                                    <pfx3:E-735_4_03>
+                                        <xsl:value-of select="'P'"/>
+                                    </pfx3:E-735_4_03>
+                                </pfx3:S-HL_4>
+                                <pfx3:S-MAN_35>
+                                    <pfx3:E-88_35_01>
+                                        <xsl:value-of select="&quot;CP&quot;"/>
+                                    </pfx3:E-88_35_01>
+                                    <pfx3:E-87_35_02>
+                                        <xsl:value-of select="../../pfx4:LoadId"/>
+                                    </pfx3:E-87_35_02>
+                                </pfx3:S-MAN_35>
+                            </pfx3:L-HL_4>
+                        </xsl:for-each>
+                        <xsl:for-each select="current()">
+                            <xsl:variable name="var1" select="current()/pfx4:Pallet[1]/pfx4:HierarchicalID"/>
+                            <xsl:for-each select="$Map-Data/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet">
+                                <xsl:variable name="var" select="1-position()"/>
+                                <xsl:for-each select="pfx4:Item">
+                                    <pfx3:L-HL_4>
+                                        <pfx3:S-HL_4>
+                                            <pfx3:E-628_4_01>
+                                                <xsl:value-of select="number(pfx4:HierarchicalID) + $var"/>
+                                            </pfx3:E-628_4_01>
+                                            <xsl:if test="$var1">
+                                                <pfx3:E-734_4_02>
+                                                    <xsl:value-of select="$var1"/>
+                                                </pfx3:E-734_4_02>
+                                            </xsl:if>
+                                            <pfx3:E-735_4_03>
+                                                <xsl:value-of select="'I'"/>
+                                            </pfx3:E-735_4_03>
+                                        </pfx3:S-HL_4>
+                                        <pfx3:S-LIN_5>
+                                            <pfx3:E-350_5_01>
+                                                <xsl:value-of select="number(pfx4:ItemAssignedID)"/>
+                                            </pfx3:E-350_5_01>
+                                            <pfx3:E-235_5_02>
+                                                <xsl:value-of select="&quot;VP&quot;"/>
+                                            </pfx3:E-235_5_02>
+                                            <pfx3:E-234_5_03>
+                                                <xsl:value-of select="pfx4:ItemIdentifier[pfx4:IdentifierType='VN']/pfx4:IdentifierValue"/>
+                                            </pfx3:E-234_5_03>
+                                            <pfx3:E-235_5_04>
+                                                <xsl:value-of select="&quot;SK&quot;"/>
+                                            </pfx3:E-235_5_04>
+                                            <pfx3:E-234_5_05>
+                                                <xsl:value-of select="pfx4:ItemIdentifier[pfx4:IdentifierType='IN']/pfx4:IdentifierValue"/>
+                                            </pfx3:E-234_5_05>
+                                            <pfx3:E-235_5_06>
+                                                <xsl:value-of select="&quot;PL&quot;"/>
+                                            </pfx3:E-235_5_06>
+                                            <pfx3:E-234_5_07>
+                                                <xsl:value-of select="number(pfx4:ItemAssignedID)"/>
+                                            </pfx3:E-234_5_07>
+                                        </pfx3:S-LIN_5>
+                                        <pfx3:S-SN1_6>
+                                            <pfx3:E-350_6_01>
+                                                <xsl:value-of select="number(pfx4:ItemAssignedID)"/>
+                                            </pfx3:E-350_6_01>
+                                            <pfx3:E-382_6_02>
+                                                <xsl:value-of select="sum(pfx4:SubItem/pfx4:SubItemQuantity)"/>
+                                            </pfx3:E-382_6_02>
+                                            <pfx3:E-355_6_03>
+                                                <xsl:value-of select="pfx4:ShippedQuantity/@unitOfMeasure"/>
+                                            </pfx3:E-355_6_03>
+                                        </pfx3:S-SN1_6>
+                                    </pfx3:L-HL_4>
+                                </xsl:for-each>
+                            </xsl:for-each>
+                        </xsl:for-each>
+                    </xsl:for-each>
+                    <pfx3:S-CTT_58>
+                        <pfx3:E-354_58_01>
+                            <xsl:value-of select="count($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment) + count($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order) + count($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet) + count($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet/pfx4:Item)"/>
+                        </pfx3:E-354_58_01>
+                        <pfx3:E-347_58_02>
+                            <xsl:value-of select="sum($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet/pfx4:Item/pfx4:ShippedQuantity)"/>
+                        </pfx3:E-347_58_02>
+                    </pfx3:S-CTT_58>
+                    <pfx3:S-SE_59>
+                        <pfx3:E-96_59_01>
+                            <xsl:value-of select="&quot;-999&quot;"/>
+                        </pfx3:E-96_59_01>
+                        <pfx3:E-329_59_02>
+                            <xsl:value-of select="&quot;-999&quot;"/>
+                        </pfx3:E-329_59_02>
+                    </pfx3:S-SE_59>
+                </pfx3:T-856>
+                <BC_TransactionID>
+                    <xsl:value-of select="concat($Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:ShipmentID,&quot;_&quot;, tib:timestamp())"/>
+                </BC_TransactionID>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:activity name="Null">
+        <pd:type>com.tibco.plugin.timer.NullActivity</pd:type>
+        <pd:resourceType>ae.activities.null</pd:resourceType>
+        <pd:x>724</pd:x>
+        <pd:y>294</pd:y>
+        <config/>
+        <pd:inputBindings/>
+    </pd:activity>
+    <pd:group name="Group (1)">
+        <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+        <pd:resourceType>ae.process.group</pd:resourceType>
+        <pd:x>1</pd:x>
+        <pd:y>146</pd:y>
+        <pd:width>426</pd:width>
+        <pd:height>242</pd:height>
+        <pd:collapsedWidth>57</pd:collapsedWidth>
+        <pd:collapsedHeight>70</pd:collapsedHeight>
+        <pd:groupVariables/>
+        <pd:joinToggle>inherit</pd:joinToggle>
+        <config>
+            <pd:groupType>inputLoop</pd:groupType>
+            <pd:serializable>false</pd:serializable>
+            <pd:over>$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet</pd:over>
+            <pd:iterationElementSlot>pallet</pd:iterationElementSlot>
+            <pd:indexSlot>indexPallet</pd:indexSlot>
+            <pd:outSlot>Acc_Items</pd:outSlot>
+            <pd:activityOutputName>Map-line-items</pd:activityOutputName>
+            <pd:accumulateOutput>true</pd:accumulateOutput>
+        </config>
+        <pd:inputBindings/>
+        <pd:expanded>true</pd:expanded>
+        <pd:transition>
+            <pd:from>start</pd:from>
+            <pd:to>Group</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Map-line-items</pd:from>
+            <pd:to>end</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:transition>
+            <pd:from>Group</pd:from>
+            <pd:to>Map-line-items</pd:to>
+            <pd:lineType>Default</pd:lineType>
+            <pd:lineColor>-16777216</pd:lineColor>
+            <pd:conditionType>always</pd:conditionType>
+        </pd:transition>
+        <pd:group name="Group">
+            <pd:type>com.tibco.pe.core.LoopGroup</pd:type>
+            <pd:resourceType>ae.process.group</pd:resourceType>
+            <pd:x>80</pd:x>
+            <pd:y>205</pd:y>
+            <pd:width>159</pd:width>
+            <pd:height>146</pd:height>
+            <pd:collapsedWidth>57</pd:collapsedWidth>
+            <pd:collapsedHeight>70</pd:collapsedHeight>
+            <pd:groupVariables/>
+            <pd:joinToggle>inherit</pd:joinToggle>
+            <config>
+                <pd:groupType>inputLoop</pd:groupType>
+                <pd:serializable>false</pd:serializable>
+                <pd:over>$pallet/pfx4:Pallet/pfx4:Item</pd:over>
+                <pd:iterationElementSlot>item</pd:iterationElementSlot>
+                <pd:indexSlot>i</pd:indexSlot>
+                <pd:outSlot>items_output</pd:outSlot>
+                <pd:activityOutputName>Map items</pd:activityOutputName>
+                <pd:accumulateOutput>true</pd:accumulateOutput>
+            </config>
+            <pd:inputBindings/>
+            <pd:expanded>true</pd:expanded>
+            <pd:transition>
+                <pd:from>start</pd:from>
+                <pd:to>Map items</pd:to>
+                <pd:lineType>Default</pd:lineType>
+                <pd:lineColor>-16777216</pd:lineColor>
+                <pd:conditionType>always</pd:conditionType>
+            </pd:transition>
+            <pd:transition>
+                <pd:from>Map items</pd:from>
+                <pd:to>end</pd:to>
+                <pd:lineType>Default</pd:lineType>
+                <pd:lineColor>-16777216</pd:lineColor>
+                <pd:conditionType>always</pd:conditionType>
+            </pd:transition>
+            <pd:activity name="Map items">
+                <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+                <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+                <pd:x>160</pd:x>
+                <pd:y>278</pd:y>
+                <config>
+                    <element>
+                        <xsd:element name="root">
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element ref="pfx4:O2C_ShipmentNotice"/>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </element>
+                </config>
+                <pd:inputBindings>
+                    <root>
+                        <pfx4:O2C_ShipmentNotice>
+                            <xsl:copy-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header"/>
+                            <pfx4:ShipmentNoticeBody>
+                                <pfx4:Header>
+                                    <pfx4:Shipment>
+                                        <pfx4:Order>
+                                            <pfx4:Pallet>
+                                                <xsl:copy-of select="$item/pfx4:Item"/>
+                                            </pfx4:Pallet>
+                                        </pfx4:Order>
+                                    </pfx4:Shipment>
+                                </pfx4:Header>
+                            </pfx4:ShipmentNoticeBody>
+                        </pfx4:O2C_ShipmentNotice>
+                    </root>
+                </pd:inputBindings>
+            </pd:activity>
+        </pd:group>
+        <pd:activity name="Map-line-items">
+            <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+            <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+            <pd:x>358</pd:x>
+            <pd:y>274</pd:y>
+            <config>
+                <element>
+                    <xsd:element name="root">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element ref="pfx4:O2C_ShipmentNotice"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                </element>
+            </config>
+            <pd:inputBindings>
+                <root>
+                    <pfx4:O2C_ShipmentNotice>
+                        <xsl:copy-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header"/>
+                        <pfx4:ShipmentNoticeBody>
+                            <pfx4:Header>
+                                <pfx4:Shipment>
+                                    <pfx4:Order>
+                                        <pfx4:Pallet>
+                                            <xsl:copy-of select="$items_output/AccumulatedOutput/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet/pfx4:Item"/>
+                                        </pfx4:Pallet>
+                                    </pfx4:Order>
+                                </pfx4:Shipment>
+                            </pfx4:Header>
+                        </pfx4:ShipmentNoticeBody>
+                    </pfx4:O2C_ShipmentNotice>
+                </root>
+            </pd:inputBindings>
+        </pd:activity>
+    </pd:group>
+    <pd:activity name="Map Data">
+        <pd:type>com.tibco.plugin.mapper.MapperActivity</pd:type>
+        <pd:resourceType>ae.activities.MapperActivity</pd:resourceType>
+        <pd:x>298</pd:x>
+        <pd:y>56</pd:y>
+        <config>
+            <element>
+                <xsd:element name="root">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="pfx4:O2C_ShipmentNotice"/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </element>
+        </config>
+        <pd:inputBindings>
+            <root>
+                <pfx4:O2C_ShipmentNotice>
+                    <xsl:copy-of select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header"/>
+                    <xsl:for-each xmlns:xsl="http://www.w3.org/1999/XSL/Transform" select="$Start/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody">
+                        <pfx4:ShipmentNoticeBody>
+                            <xsl:for-each select="pfx4:Header">
+                                <pfx4:Header>
+                                    <xsl:if test="pfx4:TransactionPurposeCode">
+                                        <pfx4:TransactionPurposeCode>
+                                            <xsl:value-of select="pfx4:TransactionPurposeCode"/>
+                                        </pfx4:TransactionPurposeCode>
+                                    </xsl:if>
+                                    <xsl:if test="pfx4:ShipmentID">
+                                        <pfx4:ShipmentID>
+                                            <xsl:value-of select="pfx4:ShipmentID"/>
+                                        </pfx4:ShipmentID>
+                                    </xsl:if>
+                                    <xsl:if test="pfx4:ShipmentCreateDate">
+                                        <pfx4:ShipmentCreateDate>
+                                            <xsl:value-of select="pfx4:ShipmentCreateDate"/>
+                                        </pfx4:ShipmentCreateDate>
+                                    </xsl:if>
+                                    <xsl:if test="pfx4:ShipmentCreateTime">
+                                        <pfx4:ShipmentCreateTime>
+                                            <xsl:value-of select="pfx4:ShipmentCreateTime"/>
+                                        </pfx4:ShipmentCreateTime>
+                                    </xsl:if>
+                                    <xsl:if test="pfx4:HierarchyStructureCode">
+                                        <pfx4:HierarchyStructureCode>
+                                            <xsl:value-of select="pfx4:HierarchyStructureCode"/>
+                                        </pfx4:HierarchyStructureCode>
+                                    </xsl:if>
+                                    <xsl:for-each select="pfx4:Shipment">
+                                        <pfx4:Shipment>
+                                            <xsl:if test="pfx4:HierarchicalID">
+                                                <pfx4:HierarchicalID>
+                                                    <xsl:value-of select="pfx4:HierarchicalID"/>
+                                                </pfx4:HierarchicalID>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:HierarchicalParentID">
+                                                <pfx4:HierarchicalParentID>
+                                                    <xsl:value-of select="pfx4:HierarchicalParentID"/>
+                                                </pfx4:HierarchicalParentID>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:HierarchicalLevelCode">
+                                                <pfx4:HierarchicalLevelCode>
+                                                    <xsl:value-of select="pfx4:HierarchicalLevelCode"/>
+                                                </pfx4:HierarchicalLevelCode>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:HierarchicalChildCode">
+                                                <pfx4:HierarchicalChildCode>
+                                                    <xsl:value-of select="pfx4:HierarchicalChildCode"/>
+                                                </pfx4:HierarchicalChildCode>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:PackagingCode">
+                                                <pfx4:PackagingCode>
+                                                    <xsl:value-of select="pfx4:PackagingCode"/>
+                                                </pfx4:PackagingCode>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:GroupBOLNumber">
+                                                <pfx4:GroupBOLNumber>
+                                                    <xsl:value-of select="pfx4:GroupBOLNumber"/>
+                                                </pfx4:GroupBOLNumber>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:MasterBOLNumber">
+                                                <pfx4:MasterBOLNumber>
+                                                    <xsl:value-of select="pfx4:MasterBOLNumber"/>
+                                                </pfx4:MasterBOLNumber>
+                                            </xsl:if>
+                                            <xsl:for-each select="pfx4:TransportationDetails">
+                                                <pfx4:TransportationDetails>
+                                                    <xsl:if test="pfx4:Mode">
+                                                        <pfx4:Mode>
+                                                            <xsl:value-of select="pfx4:Mode"/>
+                                                        </pfx4:Mode>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Method">
+                                                        <pfx4:Method>
+                                                            <xsl:value-of select="pfx4:Method"/>
+                                                        </pfx4:Method>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Carrier">
+                                                        <pfx4:Carrier>
+                                                            <xsl:value-of select="pfx4:Carrier"/>
+                                                        </pfx4:Carrier>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Description">
+                                                        <pfx4:Description>
+                                                            <xsl:value-of select="pfx4:Description"/>
+                                                        </pfx4:Description>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarrierSCAC">
+                                                        <pfx4:CarrierSCAC>
+                                                            <xsl:value-of select="pfx4:CarrierSCAC"/>
+                                                        </pfx4:CarrierSCAC>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:RoutingSequenceCode">
+                                                        <pfx4:RoutingSequenceCode>
+                                                            <xsl:value-of select="pfx4:RoutingSequenceCode"/>
+                                                        </pfx4:RoutingSequenceCode>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarrierProNumber">
+                                                        <pfx4:CarrierProNumber>
+                                                            <xsl:value-of select="pfx4:CarrierProNumber"/>
+                                                        </pfx4:CarrierProNumber>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarrierMethodOfPayment">
+                                                        <pfx4:CarrierMethodOfPayment>
+                                                            <xsl:value-of select="pfx4:CarrierMethodOfPayment"/>
+                                                        </pfx4:CarrierMethodOfPayment>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:EquipmentDescriptionCode">
+                                                        <pfx4:EquipmentDescriptionCode>
+                                                            <xsl:value-of select="pfx4:EquipmentDescriptionCode"/>
+                                                        </pfx4:EquipmentDescriptionCode>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:EquipmentNumber">
+                                                        <pfx4:EquipmentNumber>
+                                                            <xsl:value-of select="pfx4:EquipmentNumber"/>
+                                                        </pfx4:EquipmentNumber>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:SealNumber">
+                                                        <pfx4:SealNumber>
+                                                            <xsl:value-of select="pfx4:SealNumber"/>
+                                                        </pfx4:SealNumber>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarrierBuyerAccount">
+                                                        <pfx4:CarrierBuyerAccount>
+                                                            <xsl:value-of select="pfx4:CarrierBuyerAccount"/>
+                                                        </pfx4:CarrierBuyerAccount>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarierCODMethodOfPayment">
+                                                        <pfx4:CarierCODMethodOfPayment>
+                                                            <xsl:value-of select="pfx4:CarierCODMethodOfPayment"/>
+                                                        </pfx4:CarierCODMethodOfPayment>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:CarrierCODAmount">
+                                                        <pfx4:CarrierCODAmount>
+                                                            <xsl:value-of select="pfx4:CarrierCODAmount"/>
+                                                        </pfx4:CarrierCODAmount>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:StorageLocation">
+                                                        <pfx4:StorageLocation>
+                                                            <xsl:value-of select="pfx4:StorageLocation"/>
+                                                        </pfx4:StorageLocation>
+                                                    </xsl:if>
+                                                </pfx4:TransportationDetails>
+                                            </xsl:for-each>
+                                            <xsl:if test="pfx4:Quantity">
+                                                <pfx4:Quantity>
+                                                    <xsl:attribute name="unitOfMeasure">
+                                                        <xsl:value-of select="pfx4:Quantity/@unitOfMeasure"/>
+                                                    </xsl:attribute>
+                                                    <xsl:if test="pfx4:Quantity/@determinate">
+                                                        <xsl:attribute name="determinate">
+                                                            <xsl:value-of select="pfx4:Quantity/@determinate"/>
+                                                        </xsl:attribute>
+                                                    </xsl:if>
+                                                    <xsl:value-of select="pfx4:Quantity"/>
+                                                </pfx4:Quantity>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:GrossWeight">
+                                                <pfx4:GrossWeight>
+                                                    <xsl:attribute name="unitOfMeasure">
+                                                        <xsl:value-of select="pfx4:GrossWeight/@unitOfMeasure"/>
+                                                    </xsl:attribute>
+                                                    <xsl:if test="pfx4:GrossWeight/@determinate">
+                                                        <xsl:attribute name="determinate">
+                                                            <xsl:value-of select="pfx4:GrossWeight/@determinate"/>
+                                                        </xsl:attribute>
+                                                    </xsl:if>
+                                                    <xsl:value-of select="pfx4:GrossWeight"/>
+                                                </pfx4:GrossWeight>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:Volume">
+                                                <pfx4:Volume>
+                                                    <xsl:attribute name="unitOfMeasure">
+                                                        <xsl:value-of select="pfx4:Volume/@unitOfMeasure"/>
+                                                    </xsl:attribute>
+                                                    <xsl:if test="pfx4:Volume/@determinate">
+                                                        <xsl:attribute name="determinate">
+                                                            <xsl:value-of select="pfx4:Volume/@determinate"/>
+                                                        </xsl:attribute>
+                                                    </xsl:if>
+                                                    <xsl:value-of select="pfx4:Volume"/>
+                                                </pfx4:Volume>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:carrier">
+                                                <pfx4:carrier>
+                                                    <xsl:if test="pfx4:carrier/@type">
+                                                        <xsl:attribute name="type">
+                                                            <xsl:value-of select="pfx4:carrier/@type"/>
+                                                        </xsl:attribute>
+                                                    </xsl:if>
+                                                    <xsl:value-of select="pfx4:carrier"/>
+                                                </pfx4:carrier>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:paymentMethod">
+                                                <pfx4:paymentMethod>
+                                                    <xsl:value-of select="pfx4:paymentMethod"/>
+                                                </pfx4:paymentMethod>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:LoadId">
+                                                <pfx4:LoadId>
+                                                    <xsl:value-of select="pfx4:LoadId"/>
+                                                </pfx4:LoadId>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:transactionPurpose">
+                                                <pfx4:transactionPurpose>
+                                                    <xsl:value-of select="pfx4:transactionPurpose"/>
+                                                </pfx4:transactionPurpose>
+                                            </xsl:if>
+                                            <xsl:for-each select="pfx4:remarks">
+                                                <pfx4:remarks>
+                                                    <xsl:value-of select="."/>
+                                                </pfx4:remarks>
+                                            </xsl:for-each>
+                                            <xsl:for-each select="pfx4:ShipmentReferenceNumbers">
+                                                <pfx4:ShipmentReferenceNumbers>
+                                                    <pfx4:ReferenceNumberType>
+                                                        <xsl:value-of select="pfx4:ReferenceNumberType"/>
+                                                    </pfx4:ReferenceNumberType>
+                                                    <xsl:if test="pfx4:cReferenceNumberType">
+                                                        <pfx4:cReferenceNumberType>
+                                                            <xsl:value-of select="pfx4:cReferenceNumberType"/>
+                                                        </pfx4:cReferenceNumberType>
+                                                    </xsl:if>
+                                                    <pfx4:ReferenceNumberValue>
+                                                        <xsl:value-of select="pfx4:ReferenceNumberValue"/>
+                                                    </pfx4:ReferenceNumberValue>
+                                                    <xsl:for-each select="pfx4:ReferenceNumberDate">
+                                                        <pfx4:ReferenceNumberDate>
+                                                            <xsl:if test="pfx4:DateTimeType">
+                                                                <pfx4:DateTimeType>
+                                                                    <xsl:value-of select="pfx4:DateTimeType"/>
+                                                                </pfx4:DateTimeType>
+                                                            </xsl:if>
+                                                            <xsl:for-each select="pfx4:cDateTimeType">
+                                                                <pfx4:cDateTimeType>
+                                                                    <xsl:value-of select="."/>
+                                                                </pfx4:cDateTimeType>
+                                                            </xsl:for-each>
+                                                            <xsl:if test="pfx4:Date">
+                                                                <pfx4:Date>
+                                                                    <xsl:value-of select="pfx4:Date"/>
+                                                                </pfx4:Date>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Time">
+                                                                <pfx4:Time>
+                                                                    <xsl:value-of select="pfx4:Time"/>
+                                                                </pfx4:Time>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Timezone">
+                                                                <pfx4:Timezone>
+                                                                    <xsl:value-of select="pfx4:Timezone"/>
+                                                                </pfx4:Timezone>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Description">
+                                                                <pfx4:Description>
+                                                                    <xsl:value-of select="pfx4:Description"/>
+                                                                </pfx4:Description>
+                                                            </xsl:if>
+                                                        </pfx4:ReferenceNumberDate>
+                                                    </xsl:for-each>
+                                                    <xsl:if test="pfx4:ReferenceNumberDescription">
+                                                        <pfx4:ReferenceNumberDescription>
+                                                            <xsl:value-of select="pfx4:ReferenceNumberDescription"/>
+                                                        </pfx4:ReferenceNumberDescription>
+                                                    </xsl:if>
+                                                    <xsl:for-each select="pfx4:ReferenceNumberNote">
+                                                        <pfx4:ReferenceNumberNote>
+                                                            <xsl:if test="pfx4:NoteType">
+                                                                <pfx4:NoteType>
+                                                                    <xsl:value-of select="pfx4:NoteType"/>
+                                                                </pfx4:NoteType>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:NoteText">
+                                                                <pfx4:NoteText>
+                                                                    <xsl:value-of select="pfx4:NoteText"/>
+                                                                </pfx4:NoteText>
+                                                            </xsl:if>
+                                                        </pfx4:ReferenceNumberNote>
+                                                    </xsl:for-each>
+                                                </pfx4:ShipmentReferenceNumbers>
+                                            </xsl:for-each>
+                                            <xsl:for-each select="pfx4:ShipmentDates">
+                                                <pfx4:ShipmentDates>
+                                                    <xsl:if test="pfx4:DateTimeType">
+                                                        <pfx4:DateTimeType>
+                                                            <xsl:value-of select="pfx4:DateTimeType"/>
+                                                        </pfx4:DateTimeType>
+                                                    </xsl:if>
+                                                    <xsl:for-each select="pfx4:cDateTimeType">
+                                                        <pfx4:cDateTimeType>
+                                                            <xsl:value-of select="."/>
+                                                        </pfx4:cDateTimeType>
+                                                    </xsl:for-each>
+                                                    <xsl:if test="pfx4:Date">
+                                                        <pfx4:Date>
+                                                            <xsl:value-of select="pfx4:Date"/>
+                                                        </pfx4:Date>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Time">
+                                                        <pfx4:Time>
+                                                            <xsl:value-of select="pfx4:Time"/>
+                                                        </pfx4:Time>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Timezone">
+                                                        <pfx4:Timezone>
+                                                            <xsl:value-of select="pfx4:Timezone"/>
+                                                        </pfx4:Timezone>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:Description">
+                                                        <pfx4:Description>
+                                                            <xsl:value-of select="pfx4:Description"/>
+                                                        </pfx4:Description>
+                                                    </xsl:if>
+                                                </pfx4:ShipmentDates>
+                                            </xsl:for-each>
+                                            <xsl:for-each select="pfx4:ShipmentParties">
+                                                <pfx4:ShipmentParties>
+                                                    <xsl:attribute name="type">
+                                                        <xsl:value-of select="@type"/>
+                                                    </xsl:attribute>
+                                                    <xsl:if test="@cType">
+                                                        <xsl:attribute name="cType">
+                                                            <xsl:value-of select="@cType"/>
+                                                        </xsl:attribute>
+                                                    </xsl:if>
+                                                    <xsl:for-each select="pfx4:id">
+                                                        <pfx4:id>
+                                                            <xsl:attribute name="type">
+                                                                <xsl:value-of select="@type"/>
+                                                            </xsl:attribute>
+                                                            <xsl:if test="@cType">
+                                                                <xsl:attribute name="cType">
+                                                                    <xsl:value-of select="@cType"/>
+                                                                </xsl:attribute>
+                                                            </xsl:if>
+                                                            <xsl:value-of select="."/>
+                                                        </pfx4:id>
+                                                    </xsl:for-each>
+                                                    <xsl:for-each select="pfx4:name">
+                                                        <pfx4:name>
+                                                            <xsl:value-of select="."/>
+                                                        </pfx4:name>
+                                                    </xsl:for-each>
+                                                    <xsl:for-each select="pfx4:address">
+                                                        <pfx4:address>
+                                                            <xsl:attribute name="type">
+                                                                <xsl:value-of select="@type"/>
+                                                            </xsl:attribute>
+                                                            <xsl:for-each select="pfx4:addressLine">
+                                                                <pfx4:addressLine>
+                                                                    <xsl:value-of select="."/>
+                                                                </pfx4:addressLine>
+                                                            </xsl:for-each>
+                                                            <xsl:if test="pfx4:city">
+                                                                <pfx4:city>
+                                                                    <xsl:value-of select="pfx4:city"/>
+                                                                </pfx4:city>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:region">
+                                                                <pfx4:region>
+                                                                    <xsl:value-of select="pfx4:region"/>
+                                                                </pfx4:region>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:postalcode">
+                                                                <pfx4:postalcode>
+                                                                    <xsl:value-of select="pfx4:postalcode"/>
+                                                                </pfx4:postalcode>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:country">
+                                                                <pfx4:country>
+                                                                    <xsl:value-of select="pfx4:country"/>
+                                                                </pfx4:country>
+                                                            </xsl:if>
+                                                        </pfx4:address>
+                                                    </xsl:for-each>
+                                                    <xsl:copy-of select="pfx4:contact"/>
+                                                </pfx4:ShipmentParties>
+                                            </xsl:for-each>
+                                            <xsl:for-each select="pfx4:Order">
+                                                <pfx4:Order>
+                                                    <xsl:if test="pfx4:HierarchicalID">
+                                                        <pfx4:HierarchicalID>
+                                                            <xsl:value-of select="pfx4:HierarchicalID"/>
+                                                        </pfx4:HierarchicalID>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:HierarchicalParentID">
+                                                        <pfx4:HierarchicalParentID>
+                                                            <xsl:value-of select="pfx4:HierarchicalParentID"/>
+                                                        </pfx4:HierarchicalParentID>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:HierarchicalLevelCode">
+                                                        <pfx4:HierarchicalLevelCode>
+                                                            <xsl:value-of select="pfx4:HierarchicalLevelCode"/>
+                                                        </pfx4:HierarchicalLevelCode>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:HierarchicalChildCode">
+                                                        <pfx4:HierarchicalChildCode>
+                                                            <xsl:value-of select="pfx4:HierarchicalChildCode"/>
+                                                        </pfx4:HierarchicalChildCode>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:PurchaseOrderNumber">
+                                                        <pfx4:PurchaseOrderNumber>
+                                                            <xsl:value-of select="pfx4:PurchaseOrderNumber"/>
+                                                        </pfx4:PurchaseOrderNumber>
+                                                    </xsl:if>
+                                                    <xsl:if test="pfx4:OrderTransactionNumber">
+                                                        <pfx4:OrderTransactionNumber>
+                                                            <xsl:value-of select="pfx4:OrderTransactionNumber"/>
+                                                        </pfx4:OrderTransactionNumber>
+                                                    </xsl:if>
+                                                    <xsl:for-each select="pfx4:OrderReferenceNumbers">
+                                                        <pfx4:OrderReferenceNumbers>
+                                                            <pfx4:ReferenceNumberType>
+                                                                <xsl:value-of select="pfx4:ReferenceNumberType"/>
+                                                            </pfx4:ReferenceNumberType>
+                                                            <xsl:if test="pfx4:cReferenceNumberType">
+                                                                <pfx4:cReferenceNumberType>
+                                                                    <xsl:value-of select="pfx4:cReferenceNumberType"/>
+                                                                </pfx4:cReferenceNumberType>
+                                                            </xsl:if>
+                                                            <pfx4:ReferenceNumberValue>
+                                                                <xsl:value-of select="pfx4:ReferenceNumberValue"/>
+                                                            </pfx4:ReferenceNumberValue>
+                                                            <xsl:for-each select="pfx4:ReferenceNumberDate">
+                                                                <pfx4:ReferenceNumberDate>
+                                                                    <xsl:if test="pfx4:DateTimeType">
+                                                                        <pfx4:DateTimeType>
+                                                                            <xsl:value-of select="pfx4:DateTimeType"/>
+                                                                        </pfx4:DateTimeType>
+                                                                    </xsl:if>
+                                                                    <xsl:for-each select="pfx4:cDateTimeType">
+                                                                        <pfx4:cDateTimeType>
+                                                                            <xsl:value-of select="."/>
+                                                                        </pfx4:cDateTimeType>
+                                                                    </xsl:for-each>
+                                                                    <xsl:if test="pfx4:Date">
+                                                                        <pfx4:Date>
+                                                                            <xsl:value-of select="pfx4:Date"/>
+                                                                        </pfx4:Date>
+                                                                    </xsl:if>
+                                                                    <xsl:if test="pfx4:Time">
+                                                                        <pfx4:Time>
+                                                                            <xsl:value-of select="pfx4:Time"/>
+                                                                        </pfx4:Time>
+                                                                    </xsl:if>
+                                                                    <xsl:if test="pfx4:Timezone">
+                                                                        <pfx4:Timezone>
+                                                                            <xsl:value-of select="pfx4:Timezone"/>
+                                                                        </pfx4:Timezone>
+                                                                    </xsl:if>
+                                                                    <xsl:if test="pfx4:Description">
+                                                                        <pfx4:Description>
+                                                                            <xsl:value-of select="pfx4:Description"/>
+                                                                        </pfx4:Description>
+                                                                    </xsl:if>
+                                                                </pfx4:ReferenceNumberDate>
+                                                            </xsl:for-each>
+                                                            <xsl:if test="pfx4:ReferenceNumberDescription">
+                                                                <pfx4:ReferenceNumberDescription>
+                                                                    <xsl:value-of select="pfx4:ReferenceNumberDescription"/>
+                                                                </pfx4:ReferenceNumberDescription>
+                                                            </xsl:if>
+                                                            <xsl:for-each select="pfx4:ReferenceNumberNote">
+                                                                <pfx4:ReferenceNumberNote>
+                                                                    <xsl:if test="pfx4:NoteType">
+                                                                        <pfx4:NoteType>
+                                                                            <xsl:value-of select="pfx4:NoteType"/>
+                                                                        </pfx4:NoteType>
+                                                                    </xsl:if>
+                                                                    <xsl:if test="pfx4:NoteText">
+                                                                        <pfx4:NoteText>
+                                                                            <xsl:value-of select="pfx4:NoteText"/>
+                                                                        </pfx4:NoteText>
+                                                                    </xsl:if>
+                                                                </pfx4:ReferenceNumberNote>
+                                                            </xsl:for-each>
+                                                        </pfx4:OrderReferenceNumbers>
+                                                    </xsl:for-each>
+                                                    <xsl:for-each select="pfx4:OrderDates">
+                                                        <pfx4:OrderDates>
+                                                            <xsl:if test="pfx4:DateTimeType">
+                                                                <pfx4:DateTimeType>
+                                                                    <xsl:value-of select="pfx4:DateTimeType"/>
+                                                                </pfx4:DateTimeType>
+                                                            </xsl:if>
+                                                            <xsl:for-each select="pfx4:cDateTimeType">
+                                                                <pfx4:cDateTimeType>
+                                                                    <xsl:value-of select="."/>
+                                                                </pfx4:cDateTimeType>
+                                                            </xsl:for-each>
+                                                            <xsl:if test="pfx4:Date">
+                                                                <pfx4:Date>
+                                                                    <xsl:value-of select="pfx4:Date"/>
+                                                                </pfx4:Date>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Time">
+                                                                <pfx4:Time>
+                                                                    <xsl:value-of select="pfx4:Time"/>
+                                                                </pfx4:Time>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Timezone">
+                                                                <pfx4:Timezone>
+                                                                    <xsl:value-of select="pfx4:Timezone"/>
+                                                                </pfx4:Timezone>
+                                                            </xsl:if>
+                                                            <xsl:if test="pfx4:Description">
+                                                                <pfx4:Description>
+                                                                    <xsl:value-of select="pfx4:Description"/>
+                                                                </pfx4:Description>
+                                                            </xsl:if>
+                                                        </pfx4:OrderDates>
+                                                    </xsl:for-each>
+                                                    <pfx4:Pallet>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:HierarchicalID">
+                                                            <pfx4:HierarchicalID>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:HierarchicalID"/>
+                                                            </pfx4:HierarchicalID>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:HierarchicalParentID">
+                                                            <pfx4:HierarchicalParentID>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:HierarchicalParentID"/>
+                                                            </pfx4:HierarchicalParentID>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:HierarchicalLevelCode">
+                                                            <pfx4:HierarchicalLevelCode>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:HierarchicalLevelCode"/>
+                                                            </pfx4:HierarchicalLevelCode>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:HierarchicalChildCode">
+                                                            <pfx4:HierarchicalChildCode>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:HierarchicalChildCode"/>
+                                                            </pfx4:HierarchicalChildCode>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:PackagingCode">
+                                                            <pfx4:PackagingCode>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:PackagingCode"/>
+                                                            </pfx4:PackagingCode>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:Quantity">
+                                                            <pfx4:Quantity>
+                                                                <xsl:attribute name="unitOfMeasure">
+                                                                    <xsl:value-of select="pfx4:Pallet[1]/pfx4:Quantity/@unitOfMeasure"/>
+                                                                </xsl:attribute>
+                                                                <xsl:if test="pfx4:Pallet[1]/pfx4:Quantity/@determinate">
+                                                                    <xsl:attribute name="determinate">
+                                                                        <xsl:value-of select="pfx4:Pallet[1]/pfx4:Quantity/@determinate"/>
+                                                                    </xsl:attribute>
+                                                                </xsl:if>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:Quantity"/>
+                                                            </pfx4:Quantity>
+                                                        </xsl:if>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:GrossWeight">
+                                                            <pfx4:GrossWeight>
+                                                                <xsl:attribute name="unitOfMeasure">
+                                                                    <xsl:value-of select="pfx4:Pallet[1]/pfx4:GrossWeight/@unitOfMeasure"/>
+                                                                </xsl:attribute>
+                                                                <xsl:if test="pfx4:Pallet[1]/pfx4:GrossWeight/@determinate">
+                                                                    <xsl:attribute name="determinate">
+                                                                        <xsl:value-of select="pfx4:Pallet[1]/pfx4:GrossWeight/@determinate"/>
+                                                                    </xsl:attribute>
+                                                                </xsl:if>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:GrossWeight"/>
+                                                            </pfx4:GrossWeight>
+                                                        </xsl:if>
+                                                        <xsl:copy-of select="pfx4:Pallet[1]/pfx4:PalletIdentifier"/>
+                                                        <xsl:if test="pfx4:Pallet[1]/pfx4:PalletRFID">
+                                                            <pfx4:PalletRFID>
+                                                                <xsl:value-of select="pfx4:Pallet[1]/pfx4:PalletRFID"/>
+                                                            </pfx4:PalletRFID>
+                                                        </xsl:if>
+                                                        <xsl:for-each-group select="$Acc_Items/AccumulatedOutput/root/pfx4:O2C_ShipmentNotice/pfx4:ShipmentNoticeBody/pfx4:Header/pfx4:Shipment/pfx4:Order/pfx4:Pallet/pfx4:Item" group-by="pfx4:ItemAssignedID">
+                                                            <pfx4:Item>
+                                                                <xsl:if test="pfx4:HierarchicalID">
+                                                                    <pfx4:HierarchicalID>
+                                                                        <xsl:value-of select="pfx4:HierarchicalID"/>
+                                                                    </pfx4:HierarchicalID>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:HierarchicalParentID">
+                                                                    <pfx4:HierarchicalParentID>
+                                                                        <xsl:value-of select="pfx4:HierarchicalParentID"/>
+                                                                    </pfx4:HierarchicalParentID>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:HierarchicalLevelCode">
+                                                                    <pfx4:HierarchicalLevelCode>
+                                                                        <xsl:value-of select="pfx4:HierarchicalLevelCode"/>
+                                                                    </pfx4:HierarchicalLevelCode>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:HierarchicalChildCode">
+                                                                    <pfx4:HierarchicalChildCode>
+                                                                        <xsl:value-of select="pfx4:HierarchicalChildCode"/>
+                                                                    </pfx4:HierarchicalChildCode>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemAssignedID">
+                                                                    <pfx4:ItemAssignedID>
+                                                                        <xsl:value-of select="pfx4:ItemAssignedID"/>
+                                                                    </pfx4:ItemAssignedID>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ShippedQuantity">
+                                                                    <pfx4:ShippedQuantity>
+                                                                        <xsl:attribute name="unitOfMeasure">
+                                                                            <xsl:value-of select="pfx4:ShippedQuantity/@unitOfMeasure"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:if test="pfx4:ShippedQuantity/@determinate">
+                                                                            <xsl:attribute name="determinate">
+                                                                                <xsl:value-of select="pfx4:ShippedQuantity/@determinate"/>
+                                                                            </xsl:attribute>
+                                                                        </xsl:if>
+                                                                        <xsl:value-of select="pfx4:ShippedQuantity"/>
+                                                                    </pfx4:ShippedQuantity>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:OrderedQuantity">
+                                                                    <pfx4:OrderedQuantity>
+                                                                        <xsl:attribute name="unitOfMeasure">
+                                                                            <xsl:value-of select="pfx4:OrderedQuantity/@unitOfMeasure"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:if test="pfx4:OrderedQuantity/@determinate">
+                                                                            <xsl:attribute name="determinate">
+                                                                                <xsl:value-of select="pfx4:OrderedQuantity/@determinate"/>
+                                                                            </xsl:attribute>
+                                                                        </xsl:if>
+                                                                        <xsl:value-of select="pfx4:OrderedQuantity"/>
+                                                                    </pfx4:OrderedQuantity>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:GrossWeight">
+                                                                    <pfx4:GrossWeight>
+                                                                        <xsl:attribute name="unitOfMeasure">
+                                                                            <xsl:value-of select="pfx4:GrossWeight/@unitOfMeasure"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:if test="pfx4:GrossWeight/@determinate">
+                                                                            <xsl:attribute name="determinate">
+                                                                                <xsl:value-of select="pfx4:GrossWeight/@determinate"/>
+                                                                            </xsl:attribute>
+                                                                        </xsl:if>
+                                                                        <xsl:value-of select="pfx4:GrossWeight"/>
+                                                                    </pfx4:GrossWeight>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:NetWeight">
+                                                                    <pfx4:NetWeight>
+                                                                        <xsl:attribute name="unitOfMeasure">
+                                                                            <xsl:value-of select="pfx4:NetWeight/@unitOfMeasure"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:if test="pfx4:NetWeight/@determinate">
+                                                                            <xsl:attribute name="determinate">
+                                                                                <xsl:value-of select="pfx4:NetWeight/@determinate"/>
+                                                                            </xsl:attribute>
+                                                                        </xsl:if>
+                                                                        <xsl:value-of select="pfx4:NetWeight"/>
+                                                                    </pfx4:NetWeight>
+                                                                </xsl:if>
+                                                                <xsl:for-each select="pfx4:ItemIdentifier">
+                                                                    <pfx4:ItemIdentifier>
+                                                                        <xsl:if test="pfx4:IdentifierType">
+                                                                            <pfx4:IdentifierType>
+                                                                                <xsl:value-of select="pfx4:IdentifierType"/>
+                                                                            </pfx4:IdentifierType>
+                                                                        </xsl:if>
+                                                                        <xsl:if test="pfx4:IdentifierValue">
+                                                                            <pfx4:IdentifierValue>
+                                                                                <xsl:value-of select="pfx4:IdentifierValue"/>
+                                                                            </pfx4:IdentifierValue>
+                                                                        </xsl:if>
+                                                                    </pfx4:ItemIdentifier>
+                                                                </xsl:for-each>
+                                                                <xsl:for-each select="pfx4:ItemReferenceNumbers">
+                                                                    <pfx4:ItemReferenceNumbers>
+                                                                        <pfx4:ReferenceNumberType>
+                                                                            <xsl:value-of select="pfx4:ReferenceNumberType"/>
+                                                                        </pfx4:ReferenceNumberType>
+                                                                        <xsl:if test="pfx4:cReferenceNumberType">
+                                                                            <pfx4:cReferenceNumberType>
+                                                                                <xsl:value-of select="pfx4:cReferenceNumberType"/>
+                                                                            </pfx4:cReferenceNumberType>
+                                                                        </xsl:if>
+                                                                        <pfx4:ReferenceNumberValue>
+                                                                            <xsl:value-of select="pfx4:ReferenceNumberValue"/>
+                                                                        </pfx4:ReferenceNumberValue>
+                                                                        <xsl:for-each select="pfx4:ReferenceNumberDate">
+                                                                            <pfx4:ReferenceNumberDate>
+                                                                                <xsl:if test="pfx4:DateTimeType">
+                                                                                    <pfx4:DateTimeType>
+                                                                                        <xsl:value-of select="pfx4:DateTimeType"/>
+                                                                                    </pfx4:DateTimeType>
+                                                                                </xsl:if>
+                                                                                <xsl:for-each select="pfx4:cDateTimeType">
+                                                                                    <pfx4:cDateTimeType>
+                                                                                        <xsl:value-of select="."/>
+                                                                                    </pfx4:cDateTimeType>
+                                                                                </xsl:for-each>
+                                                                                <xsl:if test="pfx4:Date">
+                                                                                    <pfx4:Date>
+                                                                                        <xsl:value-of select="pfx4:Date"/>
+                                                                                    </pfx4:Date>
+                                                                                </xsl:if>
+                                                                                <xsl:if test="pfx4:Time">
+                                                                                    <pfx4:Time>
+                                                                                        <xsl:value-of select="pfx4:Time"/>
+                                                                                    </pfx4:Time>
+                                                                                </xsl:if>
+                                                                                <xsl:if test="pfx4:Timezone">
+                                                                                    <pfx4:Timezone>
+                                                                                        <xsl:value-of select="pfx4:Timezone"/>
+                                                                                    </pfx4:Timezone>
+                                                                                </xsl:if>
+                                                                                <xsl:if test="pfx4:Description">
+                                                                                    <pfx4:Description>
+                                                                                        <xsl:value-of select="pfx4:Description"/>
+                                                                                    </pfx4:Description>
+                                                                                </xsl:if>
+                                                                            </pfx4:ReferenceNumberDate>
+                                                                        </xsl:for-each>
+                                                                        <xsl:if test="pfx4:ReferenceNumberDescription">
+                                                                            <pfx4:ReferenceNumberDescription>
+                                                                                <xsl:value-of select="pfx4:ReferenceNumberDescription"/>
+                                                                            </pfx4:ReferenceNumberDescription>
+                                                                        </xsl:if>
+                                                                        <xsl:for-each select="pfx4:ReferenceNumberNote">
+                                                                            <pfx4:ReferenceNumberNote>
+                                                                                <xsl:if test="pfx4:NoteType">
+                                                                                    <pfx4:NoteType>
+                                                                                        <xsl:value-of select="pfx4:NoteType"/>
+                                                                                    </pfx4:NoteType>
+                                                                                </xsl:if>
+                                                                                <xsl:if test="pfx4:NoteText">
+                                                                                    <pfx4:NoteText>
+                                                                                        <xsl:value-of select="pfx4:NoteText"/>
+                                                                                    </pfx4:NoteText>
+                                                                                </xsl:if>
+                                                                            </pfx4:ReferenceNumberNote>
+                                                                        </xsl:for-each>
+                                                                    </pfx4:ItemReferenceNumbers>
+                                                                </xsl:for-each>
+                                                                <xsl:if test="pfx4:ItemPackType">
+                                                                    <pfx4:ItemPackType>
+                                                                        <xsl:value-of select="pfx4:ItemPackType"/>
+                                                                    </pfx4:ItemPackType>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:InnerPackCount">
+                                                                    <pfx4:InnerPackCount>
+                                                                        <xsl:value-of select="pfx4:InnerPackCount"/>
+                                                                    </pfx4:InnerPackCount>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:InnerPackShipped">
+                                                                    <pfx4:InnerPackShipped>
+                                                                        <xsl:value-of select="pfx4:InnerPackShipped"/>
+                                                                    </pfx4:InnerPackShipped>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:InnerPackQuantity">
+                                                                    <pfx4:InnerPackQuantity>
+                                                                        <xsl:attribute name="unitOfMeasure">
+                                                                            <xsl:value-of select="pfx4:InnerPackQuantity/@unitOfMeasure"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:if test="pfx4:InnerPackQuantity/@determinate">
+                                                                            <xsl:attribute name="determinate">
+                                                                                <xsl:value-of select="pfx4:InnerPackQuantity/@determinate"/>
+                                                                            </xsl:attribute>
+                                                                        </xsl:if>
+                                                                        <xsl:value-of select="pfx4:InnerPackQuantity"/>
+                                                                    </pfx4:InnerPackQuantity>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemRFID">
+                                                                    <pfx4:ItemRFID>
+                                                                        <xsl:value-of select="pfx4:ItemRFID"/>
+                                                                    </pfx4:ItemRFID>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemLayers">
+                                                                    <pfx4:ItemLayers>
+                                                                        <xsl:value-of select="pfx4:ItemLayers"/>
+                                                                    </pfx4:ItemLayers>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemTiers">
+                                                                    <pfx4:ItemTiers>
+                                                                        <xsl:value-of select="pfx4:ItemTiers"/>
+                                                                    </pfx4:ItemTiers>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemDescription">
+                                                                    <pfx4:ItemDescription>
+                                                                        <xsl:value-of select="pfx4:ItemDescription"/>
+                                                                    </pfx4:ItemDescription>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemInnerPackUPC">
+                                                                    <pfx4:ItemInnerPackUPC>
+                                                                        <xsl:value-of select="pfx4:ItemInnerPackUPC"/>
+                                                                    </pfx4:ItemInnerPackUPC>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemShelfLife">
+                                                                    <pfx4:ItemShelfLife>
+                                                                        <xsl:value-of select="pfx4:ItemShelfLife"/>
+                                                                    </pfx4:ItemShelfLife>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ItemEDILineNumber">
+                                                                    <pfx4:ItemEDILineNumber>
+                                                                        <xsl:value-of select="pfx4:ItemEDILineNumber"/>
+                                                                    </pfx4:ItemEDILineNumber>
+                                                                </xsl:if>
+                                                                <xsl:for-each select="current-group()">
+                                                                    <xsl:copy-of select="pfx4:SubItem"/>
+                                                                </xsl:for-each>
+                                                                <xsl:if test="pfx4:UnitPrice">
+                                                                    <pfx4:UnitPrice>
+                                                                        <xsl:attribute name="currencyId">
+                                                                            <xsl:value-of select="pfx4:UnitPrice/@currencyId"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:value-of select="pfx4:UnitPrice"/>
+                                                                    </pfx4:UnitPrice>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:UnitPriceBasis">
+                                                                    <pfx4:UnitPriceBasis>
+                                                                        <xsl:value-of select="pfx4:UnitPriceBasis"/>
+                                                                    </pfx4:UnitPriceBasis>
+                                                                </xsl:if>
+                                                                <xsl:if test="pfx4:ExtendedUnitPrice">
+                                                                    <pfx4:ExtendedUnitPrice>
+                                                                        <xsl:attribute name="currencyId">
+                                                                            <xsl:value-of select="pfx4:ExtendedUnitPrice/@currencyId"/>
+                                                                        </xsl:attribute>
+                                                                        <xsl:value-of select="pfx4:ExtendedUnitPrice"/>
+                                                                    </pfx4:ExtendedUnitPrice>
+                                                                </xsl:if>
+                                                                <xsl:for-each select="pfx4:Notes">
+                                                                    <pfx4:Notes>
+                                                                        <pfx4:NoteType>
+                                                                            <xsl:value-of select="pfx4:NoteType"/>
+                                                                        </pfx4:NoteType>
+                                                                        <pfx4:NoteText>
+                                                                            <xsl:value-of select="pfx4:NoteText"/>
+                                                                        </pfx4:NoteText>
+                                                                        <xsl:if test="pfx4:cNoteText">
+                                                                            <pfx4:cNoteText>
+                                                                                <xsl:value-of select="pfx4:cNoteText"/>
+                                                                            </pfx4:cNoteText>
+                                                                        </xsl:if>
+                                                                    </pfx4:Notes>
+                                                                </xsl:for-each>
+                                                            </pfx4:Item>
+                                                        </xsl:for-each-group>
+                                                    </pfx4:Pallet>
+                                                    <xsl:copy-of select="pfx4:Parties"/>
+                                                    <xsl:for-each select="pfx4:Incoterms">
+                                                        <pfx4:Incoterms>
+                                                            <pfx4:Code>
+                                                                <xsl:value-of select="pfx4:Code"/>
+                                                            </pfx4:Code>
+                                                            <pfx4:Description>
+                                                                <xsl:value-of select="pfx4:Description"/>
+                                                            </pfx4:Description>
+                                                        </pfx4:Incoterms>
+                                                    </xsl:for-each>
+                                                    <xsl:for-each select="pfx4:Notes">
+                                                        <pfx4:Notes>
+                                                            <pfx4:NoteType>
+                                                                <xsl:value-of select="pfx4:NoteType"/>
+                                                            </pfx4:NoteType>
+                                                            <pfx4:NoteText>
+                                                                <xsl:value-of select="pfx4:NoteText"/>
+                                                            </pfx4:NoteText>
+                                                            <xsl:if test="pfx4:cNoteText">
+                                                                <pfx4:cNoteText>
+                                                                    <xsl:value-of select="pfx4:cNoteText"/>
+                                                                </pfx4:cNoteText>
+                                                            </xsl:if>
+                                                        </pfx4:Notes>
+                                                    </xsl:for-each>
+                                                </pfx4:Order>
+                                            </xsl:for-each>
+                                            <xsl:if test="pfx4:WeightQual">
+                                                <pfx4:WeightQual>
+                                                    <xsl:value-of select="pfx4:WeightQual"/>
+                                                </pfx4:WeightQual>
+                                            </xsl:if>
+                                            <xsl:if test="pfx4:BOLNumber">
+                                                <pfx4:BOLNumber>
+                                                    <xsl:value-of select="pfx4:BOLNumber"/>
+                                                </pfx4:BOLNumber>
+                                            </xsl:if>
+                                            <xsl:for-each select="pfx4:Notes">
+                                                <pfx4:Notes>
+                                                    <pfx4:NoteType>
+                                                        <xsl:value-of select="pfx4:NoteType"/>
+                                                    </pfx4:NoteType>
+                                                    <pfx4:NoteText>
+                                                        <xsl:value-of select="pfx4:NoteText"/>
+                                                    </pfx4:NoteText>
+                                                    <xsl:if test="pfx4:cNoteText">
+                                                        <pfx4:cNoteText>
+                                                            <xsl:value-of select="pfx4:cNoteText"/>
+                                                        </pfx4:cNoteText>
+                                                    </xsl:if>
+                                                </pfx4:Notes>
+                                            </xsl:for-each>
+                                            <xsl:copy-of select="pfx4:lineItems"/>
+                                        </pfx4:Shipment>
+                                    </xsl:for-each>
+                                </pfx4:Header>
+                            </xsl:for-each>
+                        </pfx4:ShipmentNoticeBody>
+                    </xsl:for-each>
+                </pfx4:O2C_ShipmentNotice>
+            </root>
+        </pd:inputBindings>
+    </pd:activity>
+    <pd:transition>
+        <pd:from>Map BC Data</pd:from>
+        <pd:to>LogMapBC</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogSentBC</pd:from>
+        <pd:to>logMarketplaceTransaction</pd:to>
+        <pd:xpathDescription>Log Into MarketPlace</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:source/pfx4:application!="" or $Start/root/pfx4:O2C_ShipmentNotice/pfx4:Header/pfx4:routing/pfx4:application!=""</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Error in Send To BC</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>One Bend</pd:lineType>
+        <pd:lineColor>-131072</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendtoBC</pd:from>
+        <pd:to>Error in Send To BC</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-131072</pd:lineColor>
+        <pd:conditionType>error</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SendtoBC</pd:from>
+        <pd:to>LogSentBC</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogMapBC</pd:from>
+        <pd:to>SendtoBC</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Error in BC Mapping</pd:from>
+        <pd:to>SetExceptionFlag</pd:to>
+        <pd:lineType>One Bend</pd:lineType>
+        <pd:lineColor>-131072</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Set Confirm true</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>SetExceptionFlag</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>logMarketplaceTransaction</pd:from>
+        <pd:to>Error in logMarketPlaceTransaction</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>error</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Error in logMarketPlaceTransaction</pd:from>
+        <pd:to>End</pd:to>
+        <pd:lineType>One Bend</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>logMarketplaceTransaction</pd:from>
+        <pd:to>LogMarketPlaceTransaction-Success</pd:to>
+        <pd:xpathDescription>Successful Logging</pd:xpathDescription>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>xpath</pd:conditionType>
+        <pd:xpath>$logMarketplaceTransaction/status=$_globalVariables/ns:GlobalVariables/CLE/Common/JobStatus/CompletionStatus/SUCCESS</pd:xpath>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogMarketPlaceTransaction-Success</pd:from>
+        <pd:to>Set Confirm true</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>logMarketplaceTransaction</pd:from>
+        <pd:to>LogMarketPlaceTransaction-Error</pd:to>
+        <pd:xpathDescription>Error in Logging</pd:xpathDescription>
+        <pd:lineType>Multiple Bends</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogMarketPlaceTransaction-Error</pd:from>
+        <pd:to>Set Confirm true</pd:to>
+        <pd:lineType>One Bend</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>LogSentBC</pd:from>
+        <pd:to>Null</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>otherwise</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Null</pd:from>
+        <pd:to>Set Confirm true</pd:to>
+        <pd:lineType>One Bend</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Map BC Data</pd:from>
+        <pd:to>Error in BC Mapping</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-65536</pd:lineColor>
+        <pd:conditionType>error</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Start</pd:from>
+        <pd:to>Group (1)</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Group (1)</pd:from>
+        <pd:to>Map Data</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:transition>
+        <pd:from>Map Data</pd:from>
+        <pd:to>Map BC Data</pd:to>
+        <pd:lineType>Default</pd:lineType>
+        <pd:lineColor>-16777216</pd:lineColor>
+        <pd:conditionType>always</pd:conditionType>
+    </pd:transition>
+    <pd:label>
+        <pd:name>Label</pd:name>
+        <pd:description>HD Supply</pd:description>
+        <pd:x>287</pd:x>
+        <pd:y>201</pd:y>
+        <pd:width>136</pd:width>
+        <pd:height>33</pd:height>
+        <pd:fontColor>-16777216</pd:fontColor>
+        <pd:color>-65536</pd:color>
+        <pd:type>solid</pd:type>
+        <pd:thickness>0</pd:thickness>
+        <pd:fade>true</pd:fade>
+    </pd:label>
+</pd:ProcessDefinition>
